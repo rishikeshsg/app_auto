@@ -182,6 +182,25 @@ class request{
 		if(!$this->resource_details) $this->request_details = mysql_fetch_array($r_db->query("SELECT * FROM request WHERE req_id = ".$id));
 		//assign all details from this array
 	}
+	
+	public function add_status($stat){
+		$r_db = new db();
+		$r_db->query("UPDATE request_status SET status = ".$stat." WHERE req_id = ".$this->req_id." AND uid = /*take id from session variable*/");
+	}
+	
+	public function add_remark($remrk){
+		$r_db = new db();
+		$r_db->query("UPDATE request_status SET remark = ".$remrk." WHERE req_id = ".$this->req_id." AND uid = /*take id from session variable*/");
+	}
+	
+	public function get_status_details(){
+		$r_db = new db();
+		$arr = mysql_fetch_array($r_db->query("SELECT * FROM request_status WHERE req_id = ".$this->req_id." AND uid = /*take id from session variable*/"));
+		if($arr){
+			$remark = arr['remark'];
+			$req_status = arr['status'];
+		}
+	}
 }
 ?>
 <?php/*this snippet is for Arpit's reference.
