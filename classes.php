@@ -22,6 +22,7 @@ class db
 		$this->password = $pass;
 		$this->user = $username;
 		$this->error = "";
+		
 		$this->opendb = false;
 	}
 	
