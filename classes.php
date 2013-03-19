@@ -2,6 +2,8 @@
 /* Config.php sets the global variables for the database once and for all. */
 include_once('db_config.php');
 
+
+
 /* Class for Database functions. */
 class db
 {
