@@ -162,50 +162,69 @@ class request{
 	private	$e_date;
 	private	$entry_date;
 	private	$status;
-	public $request_details;
+	private $is_sender;
+	private $cur_user;
+	private $remark;
+	private $req_status;
 	
-	public function request($id){
+	public $request_details;
+	public $request_status;
+	public $r_db;
+	
+	public function request($id,$u_id){
 		$r_db = new db();
+		$this->cur_user = $u_id;
 		$this->request_details = mysql_fetch_array($r_db->query("SELECT * FROM request WHERE req_id = ".$id));
 		if($this->request_details){
-			$this->req_id = request_details['req_id'];
-			$this->title = request_details['title'];
-			$this->description = request_details['description'];
-			$this->s_date = request_details['s_date'];
-			$this->s_time = request_details['s_time'];
-			$this->e_date = request_details['e_date'];
-			$this->e_time = request_details['e_time'];
-			$this->entry_date = request_details['entry_date'];
-			$this->status = request_details['status'];
+			$this->req_id = $this->request_details['req_id'];
+			$this->title = $this->request_details['title'];
+			$this->description = $this->request_details['description'];
+			$this->s_date = $this->request_details['s_date'];
+			$this->s_time = $this->request_details['s_time'];
+			$this->e_date = $this->request_details['e_date'];
+			$this->e_time = $this->request_details['e_time'];
+			$this->entry_date = $this->request_details['entry_date'];
+			$this->status = $this->request_details['status'];
+			if($this->request_details['uid'] == $this->cur_user){
+				$this->is_sender = 1;
+				if(!$r_db->query("UPDATE request SET seen = 1 WHERE req_id = ".$this->req_id." AND uid = ".$this->cur_user))
+						//call destructor
+			}
+			else{
+				$this->request_status = mysql_fetch_array($r_db->query("SELECT * FROM request_status WHERE req_id = ".$this->req_id." AND uid = ".$this->cur_user))
+				if($this->request_status){
+					$remark = arr['remark'];
+					$req_status = arr['status'];
+					if(!$r_db->query("UPDATE request_status SET seen = 1 WHERE req_id = ".$this->req_id." AND uid = ".$this->cur_user))
+						//call destructor
+				}
+				else
+					//call destructor
+			}
+		}
+		else{
+			//call destructor
 		}
 	}
 	
 	public function get__request_details(){
-		if(!$this->resource_details) $this->request_details = mysql_fetch_array($r_db->query("SELECT * FROM request WHERE req_id = ".$id));
-		//assign all details from this array
+		return $request_details;
 	}
 	
 	public function add_status($stat){
-		$r_db = new db();
-		$r_db->query("UPDATE request_status SET status = ".$stat." WHERE req_id = ".$this->req_id." AND uid = /*take id from session variable*/");
+		$r_db->query("UPDATE request_status SET status = ".$stat." WHERE req_id = ".$this->req_id." AND uid = ".$this->cur_user);
 	}
 	
 	public function add_remark($remrk){
-		$r_db = new db();
-		$r_db->query("UPDATE request_status SET remark = ".$remrk." WHERE req_id = ".$this->req_id." AND uid = /*take id from session variable*/");
+		$r_db->query("UPDATE request_status SET remark = ".$remrk." WHERE req_id = ".$this->req_id." AND uid = ".$this->cur_user);
 	}
 	
 	public function get_status_details(){
-		$r_db = new db();
-		$arr = mysql_fetch_array($r_db->query("SELECT * FROM request_status WHERE req_id = ".$this->req_id." AND uid = /*take id from session variable*/"));
-		if($arr){
-			$remark = arr['remark'];
-			$req_status = arr['status'];
-		}
+		return $request_status;
+	}
+	
+	public function cancel_request(){
+		$r_db->query("DELETE FROM request WHERE req_id = ".$this->req_id." AND uid = ".$this->cur_user);
 	}
 }
-?>
-<?php/*this snippet is for Arpit's reference.
-$my_db = new db();
-$resource = $my_db->query('select * from table');*/
 ?>
