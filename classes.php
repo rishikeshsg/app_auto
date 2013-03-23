@@ -1,4 +1,3 @@
-arpit
 
 <?php
 /* Config.php sets the global variables for the database once and for all. */
