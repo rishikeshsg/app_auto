@@ -9,7 +9,7 @@ $max_user = 5;
 $con = mysql_connect ($hostname,$username,$pass);
 
 if(!$con){
-  echo "Connection Failure";
+	echo "Connection Failure";
 	exit();
 }
 
