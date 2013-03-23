@@ -1,12 +1,12 @@
 <?php
 
-include "connect.php";
+include "db_config.php";
 $max_userlevel = 2;
 $max_resource = 3;
 $max_req = 11;
 $max_user = 5;
 
-$con = mysql_connect ($server,$user,$pass);
+$con = mysql_connect ($hostname,$username,$pass);
 
 if(!$con){
   echo "Connection Failure";
@@ -28,7 +28,7 @@ if(!$p){
 }
 echo "user_type table successfully created</br>";
 
-$p = mysql_query("CREATE TABLE IF NOT EXISTS user_details(uid INT($max_user) PRIMARY KEY AUTO_INCREMENT, name VARCHAR(40) NOT NULL,uname VARCHAR(40) NOT NULL UNIQUE,email VARCHAR(40) NOT NULL UNIQUE,pass VARCHAR(40) NOT NULL,designation VARCHAR(40) NOT NULL,contact VARCHAR(10) NOT NULL,u_type INT($max_userlevel) NOT NULL,pic VARCHAR(100) DEFAULT 'img/user/default.jpg' NOT NULL,FOREIGN KEY(u_type) REFERENCES user_type(u_level) ON DELETE CASCADE)");
+$p = mysql_query("CREATE TABLE IF NOT EXISTS user_details(uid INT($max_user) PRIMARY KEY AUTO_INCREMENT, name VARCHAR(40) NOT NULL,uname VARCHAR(40) NOT NULL UNIQUE,email VARCHAR(40) NOT NULL UNIQUE,pass VARCHAR(40) NOT NULL,designation VARCHAR(40) NOT NULL,contact VARCHAR(10) NOT NULL,u_type INT($max_userlevel) NOT NULL,pic VARCHAR(100) DEFAULT 'img/user/default.jpg' NOT NULL,about VARCHAR(1000),FOREIGN KEY(u_type) REFERENCES user_type(u_level) ON DELETE CASCADE)");
 if(!$p){
 	echo "Unable to create user_details table";
 	exit();
