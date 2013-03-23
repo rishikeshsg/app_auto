@@ -1,4 +1,3 @@
-
 <?php
 /* Config.php sets the global variables for the database once and for all. */
 include_once('db_config.php');
@@ -111,45 +110,18 @@ class db
 }
 /* Class for resources. */
 class resources{
-	private	$rid;											//the unique id
-	private	$r_name;										//name of resource
-	private	$location;										//the location details
-	private	$alloted;										//fetch from database to see if alloted, this property will be set by the constructor function call
-	private $r_db;											//the db object for resource 
-	
-	public $resource_details;
+	private $resource_details;
+	private $rid;											//id of the resource
+	private $r_db;
 	
 	/* Constructor. */
-	public function resources(){
+	public function resources($id){							//$id is passed as the POST method variable from the drop down list, so $id = $_POST['r_id']
 		$this->r_db = new db();
-		$this->resource_details = mysql_fetch_array($this->r_db->query('-- select statement here'));
-		if($this->resource_details){
-			$this->alloted = $resource_details['allot'];		//assuming the attribute name is allot
-			$this->rid = $resource_details['rid'];		//assuming the attribute name is alloted
-			$this->r_name = $resource_details['r_name'];		//assuming the attribute name is alloted
-			$this->location = $resource_details['location'];		//assuming the attribute name is allot
-			//other attributes to be aded here
-		}
-		
-		else{
-			//contructor not fully executed
-		}
-	}
-	public function add_resource(){
-	
-	}
-	public function delete_resource(){
-	
-	}
-	
-	/* Probably useless function. */
-	public function add_location(){
-	
+		$this->resource_details = mysql_fetch_array($this->r_db->query('SELECT * FROM resource WHERE rid = $id'));
 	}
 	
 	public function get_details(){
-		if(!$this->resource_details) $this->resource_details = mysql_fetch_array(query('-- select statement here'));
-		//assign all details from this array
+		return $this->resource_details;						//assign all details from this array
 	}
 }
 
