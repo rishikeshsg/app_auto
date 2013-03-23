@@ -23,6 +23,7 @@ assumption for now that he can’t be.
 
 [done] control officers corresponding to a resource delimited by semicolons in a single attribute.
 
-add default.jpg to user and resource img folders .
+add default.jpg to user and resource img folderss.
 
+Pending: Everything
 Optional Pending: Implement waiting list for a resource.
