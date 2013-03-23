@@ -17,7 +17,7 @@ class db
 	private $link;
 	
 	/* constructor, $database,$hostname,$username,$pass are the global vars included from db_config.php */
-	public function databaseconnection()
+	public function db()
 	{
 		$this->db = $database;
 		$this->host = $hostname;
@@ -188,22 +188,22 @@ class request{
 			if($this->request_details['uid'] == $this->cur_user){
 				$this->is_sender = 1;
 				if(!$r_db->query("UPDATE request SET seen = 1 WHERE req_id = ".$this->req_id." AND uid = ".$this->cur_user))
-						//call destructor
+						;//call destructor
 			}
 			else{
-				$this->request_status = mysql_fetch_array($r_db->query("SELECT * FROM request_status WHERE req_id = ".$this->req_id." AND uid = ".$this->cur_user))
+				$this->request_status = mysql_fetch_array($r_db->query("SELECT * FROM request_status WHERE req_id = ".$this->req_id." AND uid = ".$this->cur_user));
 				if($this->request_status){
-					$remark = arr['remark'];
-					$req_status = arr['status'];
+					$remark = $arr['remark'];
+					$req_status = $arr['status'];
 					if(!$r_db->query("UPDATE request_status SET seen = 1 WHERE req_id = ".$this->req_id." AND uid = ".$this->cur_user))
-						//call destructor
+						;//call destructor
 				}
 				else
-					//call destructor
+					;//call destructor
 			}
 		}
 		else{
-			//call destructor
+			;//call destructor
 		}
 	}
 	

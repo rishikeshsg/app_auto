@@ -28,14 +28,14 @@ if(!$p){
 }
 echo "user_type table successfully created</br>";
 
-$p = mysql_query("CREATE TABLE IF NOT EXISTS user_details(uid INT($max_user) PRIMARY KEY AUTO_INCREMENT, name VARCHAR(40) NOT NULL,uname VARCHAR(40) NOT NULL UNIQUE,email VARCHAR(40) NOT NULL UNIQUE,pass VARCHAR(40) NOT NULL,designation VARCHAR(40) NOT NULL,contact VARCHAR(10) NOT NULL,u_type INT($max_userlevel) NOT NULL,FOREIGN KEY(u_type) REFERENCES user_type(u_level) ON DELETE CASCADE)");
+$p = mysql_query("CREATE TABLE IF NOT EXISTS user_details(uid INT($max_user) PRIMARY KEY AUTO_INCREMENT, name VARCHAR(40) NOT NULL,uname VARCHAR(40) NOT NULL UNIQUE,email VARCHAR(40) NOT NULL UNIQUE,pass VARCHAR(40) NOT NULL,designation VARCHAR(40) NOT NULL,contact VARCHAR(10) NOT NULL,u_type INT($max_userlevel) NOT NULL,pic VARCHAR(100) DEFAULT 'img/user/default.jpg' NOT NULL,FOREIGN KEY(u_type) REFERENCES user_type(u_level) ON DELETE CASCADE)");
 if(!$p){
 	echo "Unable to create user_details table";
 	exit();
 }
 echo "user_details table successfully created</br>";
 
-$p = mysql_query("CREATE TABLE IF NOT EXISTS resource(rid INT($max_resource) PRIMARY KEY AUTO_INCREMENT,r_name VARCHAR(40) NOT NULL,location VARCHAR(40) NOT NULL,facilities VARCHAR(1000),pic VARCHAR(200) NOT NULL,description VARCHAR(1000) NOT NULL,ctrl_o VARCHAR(100) NOT NULL)");
+$p = mysql_query("CREATE TABLE IF NOT EXISTS resource(rid INT($max_resource) PRIMARY KEY AUTO_INCREMENT,r_name VARCHAR(40) NOT NULL,location VARCHAR(40) NOT NULL,facilities VARCHAR(1000),pic VARCHAR(200) DEFAULT 'img/resource/default.jpg' NOT NULL,description VARCHAR(1000) NOT NULL,ctrl_o VARCHAR(100) NOT NULL)");
 if(!$p){
 	echo "Unable to create resource table";
 	exit();
