@@ -107,6 +107,14 @@ class db
 			return null;
 		}
 	}
+	public function fetch_array($query_result){
+		if($query_result){
+			return mysql_fetch_array($query_result);
+		}
+		else{
+			return null;
+		}
+	}
 }
 /* Class for resources. */
 class resources{
