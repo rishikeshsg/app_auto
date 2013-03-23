@@ -25,5 +25,10 @@ assumption for now that he can’t be.
 
 add default.jpg to user and resource img folders.
 
+to do urgent:
+1. change all mysql_fetch_array() to fetch_array()
+2. add add_resource and delete_resource to user class
+3. issuper function to be finalized
+
 
 Optional Pending: Implement waiting list for a resource.
