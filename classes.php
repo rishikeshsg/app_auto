@@ -2,11 +2,8 @@
 /* Config.php sets the global variables for the database once and for all. */
 include_once('db_config.php');
 
-
-
 /* Class for Database functions. */
-class db
-{
+class db{
   /* username, host, database, error and password */
 	private	$user;
 	private $password;
@@ -19,10 +16,10 @@ class db
 	/* constructor, $database,$hostname,$username,$pass are the global vars included from db_config.php */
 	public function db()
 	{
-		$this->db = $database;
-		$this->host = $hostname;
-		$this->password = $pass;
-		$this->user = $username;
+		$this->db = $GLOBALS['database'];
+		$this->host = $GLOBALS['hostname'];
+		$this->password = $GLOBALS['pass'];
+		$this->user = $GLOBALS['username'];
 		$this->error = "";
 		
 		$this->opendb = false;
@@ -93,7 +90,7 @@ class db
 		{
 			$resource = mysql_query($queryString);
 			$this->close();
-			if($resource==null) echo " null resource ";
+			if($resource==null) echo $queryString." null resource ";
 			if(!$resource)
 			{
 				$this->error .= 'Query not executed.</br>';
@@ -107,15 +104,20 @@ class db
 			return null;
 		}
 	}
-	public function fetch_array($query_result){
-		if($query_result){
-			return mysql_fetch_array($query_result);
-		}
-		else{
-			return null;
-		}
+	
+	
+}
+
+/* Fetch array function prevents the passage of empty resource to fetch_array(). */
+function fetch_array($query_result){
+	if($query_result){
+		return mysql_fetch_array($query_result);
+	}
+	else{
+		return null;
 	}
 }
+
 /* Class for resources. */
 class resources{
 	private $resource_details;
@@ -125,7 +127,7 @@ class resources{
 	/* Constructor. */
 	public function resources($id){							//$id is passed as the POST method variable from the drop down list, so $id = $_POST['r_id']
 		$this->r_db = new db();
-		$this->resource_details = mysql_fetch_array($this->r_db->query('SELECT * FROM resource WHERE rid = $id'));
+		$this->resource_details = fetch_array($this->r_db->query('SELECT * FROM resource WHERE rid = $id'));
 	}
 	
 	public function get_details(){
@@ -133,6 +135,7 @@ class resources{
 	}
 }
 
+/* Class for requests. */
 class request{
 	private $req_id;				//unique for each request
 	private $title;
@@ -155,7 +158,7 @@ class request{
 	public function request($id,$u_id){
 		$r_db = new db();
 		$this->cur_user = $u_id;
-		$this->request_details = mysql_fetch_array($r_db->query("SELECT * FROM request WHERE req_id = ".$id));
+		$this->request_details = fetch_array($r_db->query("SELECT * FROM request WHERE req_id = ".$id));
 		if($this->request_details){
 			$this->req_id = $this->request_details['req_id'];
 			$this->title = $this->request_details['title'];
@@ -172,7 +175,7 @@ class request{
 						;//call destructor
 			}
 			else{
-				$this->request_status = mysql_fetch_array($r_db->query("SELECT * FROM request_status WHERE req_id = ".$this->req_id." AND uid = ".$this->cur_user));
+				$this->request_status = fetch_array($r_db->query("SELECT * FROM request_status WHERE req_id = ".$this->req_id." AND uid = ".$this->cur_user));
 				if($this->request_status){
 					$remark = $arr['remark'];
 					$req_status = $arr['status'];
@@ -222,7 +225,6 @@ class user{
 	private $pic;
 	private $about;
 	private $u_db;
-	private $super_flag;
 	private $user_details;
 	
 	// counting the request and approval status
@@ -235,12 +237,10 @@ class user{
 	private $approval_approved;
 	private $total_approval;
 
-	
+	/* Constructor. */
 	public function user($id){
 		$this->u_db = new db();
-		$this->user_details = mysql_fetch_array($this->u_db->query('SELECT * from user_details WHERE uid = '.$id.''));
-		//print_r($this->user_details);
-		//echo $this->user_details['u_type'];
+		$this->user_details = fetch_array($this->u_db->query("SELECT * from user_details WHERE uid = $id"));
 		if($this->user_details){
 			$this->uid = $this->user_details['uid'];
 			$this->uname = $this->user_details['uname'];
@@ -258,79 +258,103 @@ class user{
 			$this->approval_pending = 0;
 			$this->approval_rejected = 0;
 			$this->total_approval = 0;
-			
-			//$this->super_flag = $this->user_details['super_flag'];
 		}	
 		else{
-			//echo error
+//			echo "<script>alert('We experienced some error');</script>";
+//			session_destroy();
+//			header('Location:index.php');
 			//call destructor?
 			//contructor not fully executed;either fetch error or resource not present; display error message;
 		}	
 	}
 	
-	/* Next two functions to be called from super admin page. */
-	private function add_user(){								//as parameters all the details are to be passed.
-		//$this->u_db->query('-- Insert query here');
-	}
-	private function delete_user(){								//as param the id to be passed.
-		//$this->u_db->query('-- Delete query here');
-	}
-	
-	public function pubAdd_user($isSuper){						//isSuper is a boolean var that will be set by a user class public function $user->issuper() to true if the user is a super admin, false otherwise
-		if($isSuper) $this->add_user();
-		else ;													//echo you don't have the privileges
-	}
-	
-	public function pubDel_user($isSuper){						//isSuper is a boolean var that will be set by a user class public function $user->issuper() to true if the user is a super admin, false otherwise
-		if($isSuper) $this->delete_user();
-		else ;													//echo you don't have the privileges
-	}
-	
-	/* Update/change some personal detail like phone number or email or something. */
-	public function change_detail($detail, $val){
-		//$this->u_db->query('-- update user table set $detail = $val where id = $this->uid');
-	}
-	
-	/* Check if superadmin. */
-	public function issuper(){
-		if($this->super_flag)return true;
+	/* Check if super user/admin. */
+	public function isSuper($type){
+		if($type==999)return true;
 		else return false;
 	}
 	
+	/* Next two functions to be called from super admin page. */
+	private function add_user($name,$uname,$email,$pass,$designation,$contact,$u_type,$pic,$about){			//as parameters all the details are to be passed.
+		$this->u_db->query('INSERT INTO user_details (name,uname,email,pass,designation,contact,u_type,pic,about)VALUES($name,$uname,$email,$pass,$designation,$contact,$u_type,$pic,$about)');
+	}
+	
+	private function delete_user($id){								//as param the id to be passed.
+		$this->u_db->query('DELETE FROM user_details WHERE uid = $id');
+	}
+	
+	public function pubAdd_user($name,$uname,$email,$pass,$designation,$contact,$u_type,$pic,$about){						//isSuper is a boolean var that will be set by a user class public function $user->issuper() to true if the user is a super admin, false otherwise
+		if($this->isSuper($this->u_type)) $this->add_user($name,$uname,$email,$pass,$designation,$contact,$u_type,$pic,$about);
+		else echo "You don't have super admin privileges.";													//echo you don't have the privileges
+	}
+	
+	public function pubDel_user($id){						//isSuper is a boolean var that will be set by a user class public function $user->issuper() to true if the user is a super admin, false otherwise
+		if($isSuper($this->u_type)) $this->delete_user($id);
+		else ;													//echo you don't have the privileges
+	}
+
+	/* Next two functions to be called from super admin page. */
+	private function add_resource($r_name,$location,$facilities,$pic,$description,$ctrl_o){							//as parameters all the details are to be passed.
+		$this->u_db->query('INSERT INTO resource (r_name,location,facilities,pic,description,ctrl_o)VALUES($r_name,$location,$facilities,$pic,$description,$ctrl_o)');
+	}
+	
+	private function delete_resource($rid){							//as param the id to be passed.
+		$this->r_db->query('DELETE FROM resource WHERE rid = $rid');
+	}
+	
+	public function pubAdd_resource($r_name,$location,$facilities,$pic,$description,$ctrl_o){					//isSuper is a boolean var that will be set by a user class public function $user->issuper() to true if the user is a super admin, false otherwise
+		if($this->isSuper($this->u_type)) $this->add_resource($r_name,$location,$facilities,$pic,$description,$ctrl_o);
+		else ;													//echo you don't have the privileges
+	}
+	
+	public function pubDel_resource($id){					//isSuper is a boolean var that will be set by a user class public function $user->issuper() to true if the user is a super admin, false otherwise
+		if($this->isSuper($this->u_type)) $this->delete_resource($id);
+		else ;													//echo you don't have the privileges
+	}
+		
+	/* Update/change some personal detail like phone number or email or something. */
+	public function change_detail($detail, $val){
+		$this->u_db->query('UPDATE user_details SET $detail = $val WHERE uid = $this->uid');
+	}
+
 	/* Get user details. */
 	public function get_details(){
 		return	$this->user_details;
 	}
+	
+	/* Get profile data, made by Deepanshu for Profile pages. */
 	public function get_profile_data(){
-		while($profile_details = current($this->user_details))
-		{
-			next($this->user_details);
-			if(!(key($this->user_details) == "uid" || key($this->user_details) == "pass" || key($this->user_details) == "u_type" || key($this->user_details) == "about" || key($this->user_details) == "pic"))
+		if($this->user_details != NULL){
+			while($profile_details = current($this->user_details))
 			{
-				if(key($this->user_details) == "uname")
-					$user_type = "username";
-				else $user_type = key($this->user_details);
-				echo "<li><a> ".ucwords($user_type)." : &nbsp".current($this->user_details)." </a></li>";
+				next($this->user_details);
+				if(!(key($this->user_details) == "uid" || key($this->user_details) == "pass" || key($this->user_details) == "u_type" || key($this->user_details) == "about" || key($this->user_details) == "pic"))
+				{
+					if(key($this->user_details) == "uname")
+						$user_type = "username";
+					else $user_type = key($this->user_details);
+					echo "<li><a> ".ucwords($user_type)." : &nbsp".current($this->user_details)." </a></li>";
+				}
+				
+				next($this->user_details);
 			}
-			
-			next($this->user_details);
 		}
 	}
 	
-	// Get about me from user_details
+	/*Get about me from user_details*/
 	public function get_about_me(){
 		echo "<li><a> ".$this->desc." </a></li>";	
 	}
 	
-	// get the user pic otherwise default
+	/*get the user pic otherwise default*/
 	public function get_pic(){
 		echo $this->pic;
 	}
 	
-	// get the request status i.e. total requests made, requests approved, requests pending.
+	/* get the request status i.e. total requests made, requests approved, requests pending. Made by Deepu*/
 	public function get_request_number(){
 		$result = $this->u_db->query('SELECT * from request WHERE uid = '.$this->uid.'');
-		while($row = mysql_fetch_array($result)){
+		while($row = fetch_array($result)){
 			if(strtolower($row['status']) == 'pending'){
 				$this->request_made++;
 				$this->request_pending++;		
@@ -352,12 +376,12 @@ class user{
 		echo "<li><a> Request Rejected : &nbsp".$this->request_rejected." </a></li>";
 	}
 	
-	// get the approval status if its user type is > 1 i.e. it has the power to approve any request.
+	/* get the approval status if its user type is > 1 i.e. it has the power to approve any request. Deepu made*/
 	public function get_approval_number(){
 		if(intval($this->u_type) >= 2)
 		{
 			$result = $this->u_db->query('SELECT * from request_status WHERE uid = '.$this->uid.'');
-			while($row = mysql_fetch_array($result)){
+			while($row = fetch_array($result)){
 				
 				if(strtolower($row['status']) == 'pending'){
 					$this->total_approval++;
@@ -382,9 +406,47 @@ class user{
 		}
 	}
 	
-	// get the  user type
+	/* get the  user type*/
 	public function get_user_type(){
 		return $this->u_type;
 	}
+	
+	//get request table
+	public function get_request_user(){
+		$result = $this->u_db->query('SELECT * from request WHERE uid = '.$this->uid.' ORDER BY entrydate DESC');
+		while($row = fetch_array($result)){
+			$temp = fetch_array($this->u_db->query('SELECT * from resource WHERE rid = '.$row['rid'].''));
+			echo "<tr class=\"gradeA\">
+				<td>".$row['req_id']."</td>
+				<td>".$row['title']."</td>
+				<td>".$row['description']."</td>
+				<td>".$temp['r_name']."</td>
+				<td class=\"center\">".$row['entrydate']."</td>
+				<td class=\"center\">".$row['status']."</td>
+			</tr>";
+		}
+		
+	}
+	
+	// get approval user
+	public function get_approval_user(){
+		$result = $this->u_db->query('SELECT * from request_status WHERE uid = '.$this->uid.' ');
+		while($row = fetch_array($result)){
+			$temp_1 = fetch_array($this->u_db->query('SELECT * from request WHERE req_id = '.$row['req_id'].''));
+			$temp = fetch_array($this->u_db->query('SELECT * from resource WHERE rid = '.$temp_1['rid'].''));
+			$temp_2 =  fetch_array($this->u_db->query('SELECT * from user_details WHERE uid = '.$temp_1['uid'].''));
+			if(!($row ['status'] == "not_recieved"))
+			{
+				echo "<tr class=\"gradeA\">
+					<td>".$row['req_id']."</td>
+					<td>".$temp_1['title']."</td>
+					<td>".$temp['r_name']."</td>
+					<td>".$temp_2['name']."</td>
+					<td class=\"center\">".$row['status']."</td>
+				</tr>";
+			}
+		}	
+	}
+	
 }
 ?>
